@@ -2,7 +2,7 @@ apiVersion: v2
 name: eventail
 description: A call for papers and scheduling system for conferences
 type: application
-version: 0.0.0
+version: 0.1.0
 home: https://github.com/eventail-scheduling/eventail-deploy
 sources:
   - https://github.com/eventail-scheduling/eventail-deploy
