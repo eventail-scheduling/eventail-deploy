@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/eventail-scheduling/eventail-deploy/compare/v0.1.0...v0.1.1) (2026-09-28)
+
+
+### Bug Fixes
+
+* update the api image to 0.1.2 ([#3](https://github.com/eventail-scheduling/eventail-deploy/issues/3)) ([5ecc447](https://github.com/eventail-scheduling/eventail-deploy/commit/5ecc447148b90291fa2d5a3c7db627f92e8aa303))
+
 ## 0.1.0 (2026-09-28)
 
 
