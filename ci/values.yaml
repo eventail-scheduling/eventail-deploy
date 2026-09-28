@@ -1,0 +1,29 @@
+webUrl: http://eventail.test
+apiUrl: http://api.eventail.test
+web:
+  oidc:
+    authority: http://oidc:8080/default
+    clientId: eventail-web
+postgres:
+  hostname: postgres
+  database: eventail
+  username: eventail
+  existingSecret: postgres
+jwt:
+  issuer: http://oidc:8080/default
+  audience: eventail
+  superAdminPredicate: "sub == 'admin'"
+  integrationPredicate: "sub == 'integration'"
+s3:
+  bucketName: eventail
+  publicBaseUrl: http://s3:9000/eventail
+  endpoint: http://s3:9000
+  forcePathStyle: true
+  existingSecret: s3
+email:
+  sender: eventail@eventail.test
+  smtp:
+    host: mail
+    port: 1025
+ingress:
+  enabled: true

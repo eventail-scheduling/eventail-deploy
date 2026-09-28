@@ -17,6 +17,11 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 - **Body:** lines of at most 100 characters. Say why the change is made; the diff shows what
   changed.
 
+## Pull requests
+
+Checks lint the chart, validate its rendered manifests, the compose file and the workflows, and
+install the chart into a kind cluster against the services in `ci/dependencies.yaml`.
+
 ## License
 
 Contributions are licensed under the [Apache License 2.0](LICENSE), the same as the project, as
