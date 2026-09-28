@@ -1,0 +1,9 @@
+Eventail is starting up.
+
+  Web app: {{ .Values.webUrl }}
+  API:     {{ .Values.apiUrl }}
+{{- if not .Values.ingress.enabled }}
+
+No Ingress was created. Route both URLs to the Services
+{{ include "eventail.fullname" . }}-web and {{ include "eventail.fullname" . }}-api (port 80).
+{{- end }}

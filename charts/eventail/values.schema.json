@@ -1,0 +1,312 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "webUrl",
+    "apiUrl",
+    "api",
+    "web",
+    "postgres",
+    "jwt",
+    "s3",
+    "email"
+  ],
+  "properties": {
+    "global": {
+      "type": "object"
+    },
+    "webUrl": {
+      "type": "string",
+      "pattern": "^https?://[^/]+$"
+    },
+    "apiUrl": {
+      "type": "string",
+      "pattern": "^https?://[^/]+$"
+    },
+    "api": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string",
+              "minLength": 1
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": [
+                "Always",
+                "IfNotPresent",
+                "Never"
+              ]
+            }
+          },
+          "required": [
+            "repository",
+            "tag"
+          ]
+        },
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "extraEnv": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ]
+          }
+        },
+        "resources": {
+          "type": "object"
+        }
+      }
+    },
+    "web": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string",
+              "minLength": 1
+            },
+            "pullPolicy": {
+              "type": "string",
+              "enum": [
+                "Always",
+                "IfNotPresent",
+                "Never"
+              ]
+            }
+          },
+          "required": [
+            "repository",
+            "tag"
+          ]
+        },
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "oidc": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "authority": {
+              "type": "string",
+              "pattern": "^https?://[^/]+"
+            },
+            "clientId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "scopes": {
+              "type": "string"
+            },
+            "audience": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "authority",
+            "clientId"
+          ]
+        },
+        "resources": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "oidc"
+      ]
+    },
+    "postgres": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "hostname": {
+          "type": "string",
+          "minLength": 1
+        },
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        },
+        "database": {
+          "type": "string",
+          "minLength": 1
+        },
+        "username": {
+          "type": "string",
+          "minLength": 1
+        },
+        "existingSecret": {
+          "type": "string",
+          "minLength": 1
+        },
+        "passwordKey": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "hostname",
+        "database",
+        "username",
+        "existingSecret"
+      ]
+    },
+    "jwt": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "issuer": {
+          "type": "string",
+          "minLength": 1
+        },
+        "audience": {
+          "type": "string",
+          "minLength": 1
+        },
+        "superAdminPredicate": {
+          "type": "string",
+          "minLength": 1
+        },
+        "integrationPredicate": {
+          "type": "string",
+          "minLength": 1
+        }
+      },
+      "required": [
+        "issuer",
+        "audience",
+        "superAdminPredicate",
+        "integrationPredicate"
+      ]
+    },
+    "userInfo": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "emailAddressPath": {
+          "type": "string"
+        },
+        "displayNamePath": {
+          "type": "string"
+        }
+      }
+    },
+    "s3": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "bucketName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "maxFileSize": {
+          "type": "string",
+          "minLength": 1
+        },
+        "publicBaseUrl": {
+          "type": "string",
+          "pattern": "^https?://[^/]+"
+        },
+        "endpoint": {
+          "type": "string",
+          "pattern": "^https?://[^/]+"
+        },
+        "region": {
+          "type": "string",
+          "minLength": 1
+        },
+        "forcePathStyle": {
+          "type": "boolean"
+        },
+        "existingSecret": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "bucketName",
+        "publicBaseUrl",
+        "endpoint"
+      ]
+    },
+    "email": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "sender": {
+          "type": "string",
+          "minLength": 1
+        },
+        "smtp": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "host": {
+              "type": "string",
+              "minLength": 1
+            },
+            "port": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "existingSecret": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "host"
+          ]
+        }
+      },
+      "required": [
+        "sender",
+        "smtp"
+      ]
+    },
+    "ingress": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "className": {
+          "type": "string"
+        },
+        "annotations": {
+          "type": "object"
+        },
+        "tls": {
+          "type": "array"
+        }
+      }
+    },
+    "enabled": {
+      "type": "boolean"
+    }
+  }
+}

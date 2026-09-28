@@ -1,0 +1,74 @@
+# The public URLs of the web app and the API. Ingress hosts, CORS and the
+# links in mails are derived from these.
+webUrl: ""
+apiUrl: ""
+
+api:
+  image:
+    repository: ghcr.io/eventail-scheduling/eventail-api
+    tag: "0.1.1"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  # EnvVar entries for any API setting the values below do not cover.
+  extraEnv: []
+  resources: {}
+
+web:
+  image:
+    repository: ghcr.io/eventail-scheduling/eventail-web
+    tag: "0.1.1"
+    pullPolicy: IfNotPresent
+  replicaCount: 1
+  oidc:
+    authority: ""
+    clientId: ""
+    # Added to openid and offline_access, which are always requested.
+    scopes: profile email
+    audience: ""
+  resources: {}
+
+postgres:
+  hostname: ""
+  port: 5432
+  database: ""
+  username: ""
+  existingSecret: ""
+  passwordKey: password
+
+jwt:
+  issuer: ""
+  audience: ""
+  superAdminPredicate: ""
+  integrationPredicate: ""
+
+userInfo:
+  emailAddressPath: ""
+  displayNamePath: ""
+
+s3:
+  bucketName: ""
+  maxFileSize: 10mb
+  publicBaseUrl: ""
+  endpoint: ""
+  region: us-east-1
+  forcePathStyle: false
+  # A Secret with the keys accessKeyId and secretAccessKey. Left empty, the AWS
+  # default credential chain applies.
+  existingSecret: ""
+
+email:
+  sender: ""
+  smtp:
+    host: ""
+    port: 587
+    # A Secret with the keys user and pass. Left empty, no authentication is
+    # sent.
+    existingSecret: ""
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  # Standard Ingress tls entries; the hosts in the rules come from webUrl and
+  # apiUrl.
+  tls: []

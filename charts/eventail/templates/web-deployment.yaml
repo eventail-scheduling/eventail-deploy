@@ -1,0 +1,58 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "eventail.fullname" . }}-web
+  labels:
+    {{- include "eventail.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  replicas: {{ .Values.web.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "eventail.selectorLabels" . | nindent 6 }}
+      app.kubernetes.io/component: web
+  template:
+    metadata:
+      labels:
+        {{- include "eventail.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: web
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- include "eventail.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: web
+          image: "{{ .Values.web.image.repository }}:{{ .Values.web.image.tag }}"
+          imagePullPolicy: {{ .Values.web.image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 8080
+          env:
+            - name: API_URL
+              value: {{ .Values.apiUrl | quote }}
+            - name: OIDC_AUTHORITY
+              value: {{ .Values.web.oidc.authority | quote }}
+            - name: OIDC_CLIENT_ID
+              value: {{ .Values.web.oidc.clientId | quote }}
+            - name: OIDC_SCOPES
+              value: {{ .Values.web.oidc.scopes | quote }}
+            - name: OIDC_AUDIENCE
+              value: {{ .Values.web.oidc.audience | quote }}
+          livenessProbe:
+            httpGet:
+              path: /runtime-env.js
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /runtime-env.js
+              port: http
+          resources:
+            {{- toYaml .Values.web.resources | nindent 12 }}
+          securityContext:
+            {{- include "eventail.containerSecurityContext" . | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+      volumes:
+        - name: tmp
+          emptyDir: {}
