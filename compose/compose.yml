@@ -19,7 +19,7 @@ services:
       start_period: 10s
 
   api:
-    image: ghcr.io/eventail-scheduling/eventail-api:0.1.1
+    image: ghcr.io/eventail-scheduling/eventail-api:0.1.2
     restart: unless-stopped
     depends_on:
       postgres:
