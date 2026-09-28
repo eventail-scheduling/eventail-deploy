@@ -22,6 +22,13 @@ Commit messages follow [Conventional Commits](https://www.conventionalcommits.or
 Checks lint the chart, validate its rendered manifests, the compose file and the workflows, and
 install the chart into a kind cluster against the services in `ci/dependencies.yaml`.
 
+## Releases
+
+The chart's version and `charts/eventail/CHANGELOG.md` come from the commit messages that touch
+the chart: release-please keeps a release pull request open, and merging it tags the release and
+pushes the chart to `oci://ghcr.io/eventail-scheduling/charts`. Leave the version and the
+changelog to it. The compose setup is not versioned.
+
 ## License
 
 Contributions are licensed under the [Apache License 2.0](LICENSE), the same as the project, as
