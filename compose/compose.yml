@@ -21,6 +21,10 @@ services:
   api:
     image: ghcr.io/eventail-scheduling/eventail-api:0.1.2
     restart: unless-stopped
+    # Docker's default 10 seconds would cut off the built-in worker: the api spends up
+    # to 5 seconds closing connections, then drains running jobs for up to 15 by default
+    # (WORKER_RUNTIME_DRAIN_TIMEOUT).
+    stop_grace_period: 30s
     depends_on:
       postgres:
         condition: service_healthy
