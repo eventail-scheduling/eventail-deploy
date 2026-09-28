@@ -2,7 +2,10 @@ version: 2
 
 updates:
   - package-ecosystem: github-actions
-    directory: /
+    # The root alone covers only .github/workflows, not the local actions.
+    directories:
+      - /
+      - /.github/actions/*
     schedule:
       interval: weekly
     commit-message:
