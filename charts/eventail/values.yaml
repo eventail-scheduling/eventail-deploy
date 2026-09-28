@@ -9,7 +9,17 @@ api:
     tag: "0.1.1"
     pullPolicy: IfNotPresent
   replicaCount: 1
-  # EnvVar entries for any API setting the values below do not cover.
+  # EnvVar entries for any API setting the values below do not cover. The
+  # worker gets them too.
+  extraEnv: []
+  resources: {}
+
+# Runs jobs in a Deployment of its own. Disabled, the api runs a built-in
+# worker with a single claim loop instead.
+worker:
+  enabled: true
+  replicaCount: 1
+  # EnvVar entries for the worker only, such as WORKER_RUNTIME_CONCURRENCY.
   extraEnv: []
   resources: {}
 

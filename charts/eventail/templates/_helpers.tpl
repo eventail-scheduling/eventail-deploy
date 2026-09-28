@@ -53,6 +53,10 @@ capabilities:
     secretKeyRef:
       name: {{ .Values.postgres.existingSecret | quote }}
       key: {{ .Values.postgres.passwordKey | quote }}
+{{- if .Values.worker.enabled }}
+- name: WORKER_DISABLE_BUILT_IN
+  value: "true"
+{{- end }}
 - name: JWT_ISSUER
   value: {{ .Values.jwt.issuer | quote }}
 - name: JWT_AUDIENCE
@@ -117,19 +121,33 @@ capabilities:
 {{- end }}
 {{- end -}}
 
-{{- define "eventail.apiEnv" -}}
-{{- $base := include "eventail.apiBaseEnv" . -}}
+{{- define "eventail.assertUniqueEnv" -}}
 {{- $names := list -}}
-{{- range fromYamlArray $base -}}
+{{- range fromYamlArray .env -}}
 {{- $names = append $names .name -}}
 {{- end -}}
-{{- range .Values.api.extraEnv -}}
+{{- range .extraEnv -}}
 {{- if has .name $names -}}
-{{- fail (printf "api.extraEnv sets %s, which the chart already sets from its values" .name) -}}
+{{- fail (printf "%s sets %s, which is already set" $.key .name) -}}
+{{- end -}}
+{{- $names = append $names .name -}}
 {{- end -}}
 {{- end -}}
+
+{{- define "eventail.apiEnv" -}}
+{{- $base := include "eventail.apiBaseEnv" . -}}
+{{- include "eventail.assertUniqueEnv" (dict "env" $base "extraEnv" .Values.api.extraEnv "key" "api.extraEnv") -}}
 {{ $base }}
 {{- with .Values.api.extraEnv }}
+{{ toYaml . }}
+{{- end }}
+{{- end -}}
+
+{{- define "eventail.workerEnv" -}}
+{{- $base := include "eventail.apiEnv" . -}}
+{{- include "eventail.assertUniqueEnv" (dict "env" $base "extraEnv" .Values.worker.extraEnv "key" "worker.extraEnv") -}}
+{{ $base }}
+{{- with .Values.worker.extraEnv }}
 {{ toYaml . }}
 {{- end }}
 {{- end -}}
