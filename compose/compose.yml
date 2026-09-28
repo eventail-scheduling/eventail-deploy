@@ -1,0 +1,59 @@
+name: eventail
+
+services:
+  postgres:
+    image: postgres:17
+    restart: unless-stopped
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: eventail
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DB: eventail
+    healthcheck:
+      # -h forces TCP; during initdb the temporary server only listens on the
+      # unix socket and would pass a socket-based check too early.
+      test: ["CMD-SHELL", "pg_isready -U eventail -h 127.0.0.1"]
+      interval: 5s
+      retries: 20
+      start_period: 10s
+
+  api:
+    image: ghcr.io/eventail-scheduling/eventail-api:0.1.1
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+    env_file: api.env
+    environment:
+      PORT: 3000
+      POSTGRES_HOSTNAME: postgres
+      POSTGRES_USERNAME: eventail
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set POSTGRES_PASSWORD in .env}
+      POSTGRES_DATABASE: eventail
+      CORS_ORIGIN: ${WEB_URL:?set WEB_URL in .env}
+      FRONTEND_BASE_URL: ${WEB_URL:?set WEB_URL in .env}
+    ports:
+      - 127.0.0.1:${API_PORT:-3000}:3000
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/health"]
+      interval: 10s
+      retries: 6
+      start_period: 30s
+
+  web:
+    image: ghcr.io/eventail-scheduling/eventail-web:0.1.1
+    restart: unless-stopped
+    env_file: web.env
+    environment:
+      API_URL: ${API_URL:?set API_URL in .env}
+    ports:
+      - 127.0.0.1:${WEB_PORT:-8080}:8080
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:8080/runtime-env.js"]
+      interval: 10s
+      retries: 6
+      start_period: 5s
+
+volumes:
+  postgres-data:
