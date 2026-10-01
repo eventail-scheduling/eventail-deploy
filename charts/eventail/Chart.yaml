@@ -2,9 +2,13 @@ apiVersion: v2
 name: eventail
 description: A call for papers and scheduling system for conferences
 type: application
-version: 0.1.1
+version: 0.0.0
 home: https://github.com/eventail-scheduling/eventail-deploy
 sources:
   - https://github.com/eventail-scheduling/eventail-deploy
   - https://github.com/eventail-scheduling/eventail-api
   - https://github.com/eventail-scheduling/eventail-web
+
+# The eventail release this chart deploys. Written by the bump pipeline
+# alongside the image tags; Helm resolves nothing from it.
+appVersion: "0.0.0"
