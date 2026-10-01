@@ -1,0 +1,251 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "furry-schedule-adapter",
+    "eventail",
+    "document",
+    "venue"
+  ],
+  "properties": {
+    "global": {
+      "type": "object"
+    },
+    "furry-schedule-adapter": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "image"
+      ],
+      "properties": {
+        "image": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "repository",
+            "tag"
+          ],
+          "properties": {
+            "repository": {
+              "type": "string",
+              "minLength": 1
+            },
+            "tag": {
+              "type": "string",
+              "minLength": 1
+            },
+            "pullPolicy": {
+              "enum": [
+                "Always",
+                "IfNotPresent",
+                "Never"
+              ]
+            }
+          }
+        },
+        "resources": {
+          "type": "object"
+        },
+        "extraEnv": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": [
+              "name"
+            ],
+            "properties": {
+              "name": {
+                "type": "string",
+                "minLength": 1
+              }
+            }
+          }
+        },
+        "replicaCount": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 1
+        }
+      }
+    },
+    "eventail": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "baseUrl",
+        "editionId",
+        "auth"
+      ],
+      "properties": {
+        "baseUrl": {
+          "type": "string",
+          "pattern": "^https?://[^/]+$"
+        },
+        "editionId": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$"
+        },
+        "pollInterval": {
+          "type": "string"
+        },
+        "livePollInterval": {
+          "type": "string"
+        },
+        "requestTimeout": {
+          "type": "string"
+        },
+        "auth": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "issuer",
+            "clientId",
+            "existingSecret"
+          ],
+          "properties": {
+            "issuer": {
+              "type": "string",
+              "pattern": "^https?://"
+            },
+            "clientId": {
+              "type": "string",
+              "minLength": 1
+            },
+            "audience": {
+              "type": "string"
+            },
+            "scope": {
+              "type": "string"
+            },
+            "existingSecret": {
+              "type": "string",
+              "minLength": 1
+            },
+            "allowInsecureIssuer": {
+              "type": "boolean"
+            }
+          },
+          "if": {
+            "properties": {
+              "issuer": {
+                "pattern": "^http://"
+              }
+            },
+            "required": [
+              "issuer"
+            ]
+          },
+          "then": {
+            "properties": {
+              "allowInsecureIssuer": {
+                "const": true
+              }
+            },
+            "required": [
+              "allowInsecureIssuer"
+            ]
+          }
+        }
+      }
+    },
+    "document": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "language"
+      ],
+      "properties": {
+        "language": {
+          "type": "string",
+          "minLength": 2
+        },
+        "descriptionSource": {
+          "enum": [
+            "abstract",
+            "description"
+          ]
+        },
+        "maxStaleness": {
+          "type": "string"
+        }
+      }
+    },
+    "venue": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "address": {
+          "type": "string"
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "vendorId": {
+          "type": "string"
+        }
+      }
+    },
+    "persistence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "existingClaim": {
+          "type": "string"
+        },
+        "storageClass": {
+          "type": "string"
+        },
+        "size": {
+          "type": "string",
+          "minLength": 1
+        }
+      }
+    },
+    "service": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "port": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 65535
+        }
+      }
+    },
+    "podAnnotations": {
+      "type": "object"
+    },
+    "nodeSelector": {
+      "type": "object"
+    },
+    "tolerations": {
+      "type": "array"
+    },
+    "affinity": {
+      "type": "object"
+    }
+  }
+}

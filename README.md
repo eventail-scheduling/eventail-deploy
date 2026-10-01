@@ -1,9 +1,10 @@
 # Eventail Deploy
 
-Deployment setups for Eventail, a call for papers and scheduling system for conferences: a Helm
-chart for Kubernetes and a Docker Compose setup for everything else. Both run the published
-images of the [Eventail API](https://github.com/eventail-scheduling/eventail-api) and the
-[Eventail Web](https://github.com/eventail-scheduling/eventail-web) client.
+Deployment setups for Eventail, a call for papers and scheduling system for conferences: Helm
+charts for Kubernetes and a Docker Compose setup for everything else. Both run the published
+images of [Eventail](https://github.com/eventail-scheduling/eventail), and optionally those of
+the [Furry Schedule Adapter](https://github.com/eventail-scheduling/eventail-furry-schedule-adapter),
+which republishes one edition's schedule in the Furry Schedule Schema.
 
 ## Contributing
 

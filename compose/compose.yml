@@ -59,5 +59,33 @@ services:
       retries: 6
       start_period: 5s
 
+  furry-schedule-adapter:
+    # Opt in with `--profile furry-schedule-adapter`; most deployments do not
+    # publish to the Furry Schedule Schema.
+    profiles: [furry-schedule-adapter]
+    image: ghcr.io/eventail-scheduling/eventail-furry-schedule-adapter:0.0.0
+    restart: unless-stopped
+    env_file: furry-schedule-adapter.env
+    environment:
+      # Fixed by this file rather than left to the env file: both are
+      # determined by the compose topology, and editing the cache path to
+      # somewhere off the volume silently writes the token onto the container
+      # layer, which is the loss the volume exists to prevent.
+      EVENTAIL_BASE_URL: http://api:3000
+      EVENTAIL_AUTH_TOKEN_CACHE_PATH: /var/cache/adapter/token.json
+    depends_on:
+      api:
+        condition: service_healthy
+    ports:
+      - 127.0.0.1:${FURRY_SCHEDULE_ADAPTER_PORT:-8081}:3000
+    volumes:
+      - furry-schedule-adapter-cache:/var/cache/adapter
+    healthcheck:
+      test: ["CMD", "wget", "-q", "-O", "/dev/null", "http://127.0.0.1:3000/health"]
+      interval: 10s
+      retries: 6
+      start_period: 5s
+
 volumes:
   postgres-data:
+  furry-schedule-adapter-cache:

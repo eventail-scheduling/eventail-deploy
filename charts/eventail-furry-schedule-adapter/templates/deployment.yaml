@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "eventail-furry-schedule-adapter.fullname" . }}
+  labels:
+    {{- include "eventail-furry-schedule-adapter.labels" . | nindent 4 }}
+spec:
+  replicas: {{ (index .Values "furry-schedule-adapter").replicaCount }}
+  # One replica by design: the served document is stamped when it is built, so
+  # two replicas would hand out permanently different validators for the same
+  # schedule. Recreate rather than rolling, so the token cache's ReadWriteOnce
+  # claim is never wanted by two pods at once.
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      {{- include "eventail-furry-schedule-adapter.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "eventail-furry-schedule-adapter.selectorLabels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        {{- include "eventail-furry-schedule-adapter.podSecurityContext" . | nindent 8 }}
+      containers:
+        - name: furry-schedule-adapter
+          image: "{{ (index .Values "furry-schedule-adapter").image.repository }}:{{ (index .Values "furry-schedule-adapter").image.tag }}"
+          imagePullPolicy: {{ (index .Values "furry-schedule-adapter").image.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: 3000
+          env:
+            {{- include "eventail-furry-schedule-adapter.env" . | nindent 12 }}
+          startupProbe:
+            httpGet:
+              path: /health
+              port: http
+            periodSeconds: 5
+            failureThreshold: 60
+          # /health answers 200 while the process is up, stale or not, so this
+          # restarts the container only when it stops answering at all. An
+          # upstream outage must not restart it: that cannot fix the outage and
+          # would discard the document still being served.
+          livenessProbe:
+            httpGet:
+              path: /health
+              port: http
+          resources:
+            {{- toYaml (index .Values "furry-schedule-adapter").resources | nindent 12 }}
+          securityContext:
+            {{- include "eventail-furry-schedule-adapter.containerSecurityContext" . | nindent 12 }}
+          volumeMounts:
+            - name: tmp
+              mountPath: /tmp
+            {{- if .Values.persistence.enabled }}
+            - name: token-cache
+              mountPath: /var/cache/adapter
+            {{- end }}
+      volumes:
+        - name: tmp
+          emptyDir: {}
+        {{- if .Values.persistence.enabled }}
+        - name: token-cache
+          persistentVolumeClaim:
+            claimName: {{ include "eventail-furry-schedule-adapter.claimName" . }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

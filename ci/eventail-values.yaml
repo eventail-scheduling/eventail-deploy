@@ -1,6 +1,14 @@
+# The install check runs before any release exists, and values.yaml pins the
+# version the bump pipeline writes, so the tags are overridden here with the
+# image every push to the upstream main publishes.
+api:
+  image:
+    tag: main
 webUrl: http://eventail.test
 apiUrl: http://api.eventail.test
 web:
+  image:
+    tag: main
   oidc:
     authority: http://oidc:8080/default
     clientId: eventail-web

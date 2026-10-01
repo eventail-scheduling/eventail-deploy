@@ -34,21 +34,31 @@ jobs:
 
   lint:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: [eventail, eventail-furry-schedule-adapter]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
           version: v4.3.0
-      - run: helm lint --strict charts/eventail -f ci/values.yaml
+      - run: helm lint --strict "charts/${{ matrix.chart }}" -f "ci/${{ matrix.chart }}-values.yaml"
 
   render:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        chart: [eventail, eventail-furry-schedule-adapter]
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
         with:
           version: v4.3.0
-      - run: helm template eventail charts/eventail -f ci/values.yaml > "$RUNNER_TEMP/rendered.yaml"
+      - run: >-
+          helm template "${{ matrix.chart }}" "charts/${{ matrix.chart }}"
+          -f "ci/${{ matrix.chart }}-values.yaml" > "$RUNNER_TEMP/rendered.yaml"
       - run: >-
           docker run --rm -i
           ghcr.io/yannh/kubeconform@sha256:faffaf43f95aa6425306e1ab8d6fcad72acb9049158f38e574c085ea1ec0f64e
@@ -65,7 +75,8 @@ jobs:
           cp .env.example .env
           cp api.env.example api.env
           cp web.env.example web.env
-          docker compose config --quiet
+          cp furry-schedule-adapter.env.example furry-schedule-adapter.env
+          docker compose --profile furry-schedule-adapter config --quiet
 
   actionlint:
     runs-on: ubuntu-latest
@@ -90,7 +101,7 @@ jobs:
           kubectl apply -f ci/dependencies.yaml
           kubectl wait --for=condition=Available deployment --all --timeout=5m
 
-      - run: helm install eventail charts/eventail -f ci/values.yaml --wait --timeout 5m
+      - run: helm install eventail charts/eventail -f ci/eventail-values.yaml --wait --timeout 5m
 
       - name: Check that nothing restarted
         run: |

@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { parse } from "yaml";
 import { disableAutoMerge, enableAutoMerge } from "./github.ts";
-import { releaseMergesItself } from "./versions.ts";
+import { parseReleaseTitle, releaseMergesItself, unitShapes } from "./versions.ts";
 
 const pullRequest = process.env.PR_NUMBER;
 const title = process.env.PR_TITLE;
@@ -10,7 +10,16 @@ if (pullRequest === undefined || title === undefined) {
     throw new Error("PR_NUMBER and PR_TITLE must be set");
 }
 
-const current: string = parse(readFileSync("charts/eventail/Chart.yaml", "utf8")).version;
+const proposed = parseReleaseTitle(title);
+
+if (proposed === null) {
+    console.log(`"${title}" is not a release title this repo writes, leaving the merge alone`);
+    disableAutoMerge(pullRequest);
+    process.exit(0);
+}
+
+const chart = unitShapes[proposed.unit].chart;
+const current: string = parse(readFileSync(`${chart}/Chart.yaml`, "utf8")).version;
 
 if (releaseMergesItself(current, title)) {
     enableAutoMerge(pullRequest);

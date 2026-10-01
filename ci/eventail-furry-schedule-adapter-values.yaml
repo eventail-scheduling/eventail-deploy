@@ -1,0 +1,23 @@
+# Lint and render only for now. The values below are ones the adapter accepts,
+# but installing it needs the eventail chart running and ci/dependencies.yaml
+# carries neither a provider for it nor the Secret named below.
+#
+# The tag is overridden because values.yaml pins the version the bump pipeline
+# writes, which does not exist until the first release.
+furry-schedule-adapter:
+  image:
+    tag: main
+eventail:
+  baseUrl: http://api
+  editionId: 01a00548-4998-72d4-ad19-52975e052880
+  auth:
+    issuer: http://oidc:8080/default
+    allowInsecureIssuer: true
+    clientId: furry-schedule-adapter
+    audience: eventail
+    existingSecret: furry-schedule-adapter
+document:
+  language: en
+venue:
+  id: main
+  name: Example Convention Center

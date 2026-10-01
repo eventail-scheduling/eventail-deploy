@@ -1,8 +1,7 @@
 import { isScalar, parseDocument, Scalar } from "yaml";
-import type { Component } from "./versions.ts";
+import type { ImageName } from "./versions.ts";
 
-const imagePrefix = (component: Component): string =>
-    `ghcr.io/eventail-scheduling/eventail-${component}:`;
+const imagePrefix = (image: ImageName): string => `ghcr.io/eventail-scheduling/eventail-${image}:`;
 
 const findScalar = (text: string, path: string[]): Scalar => {
     const node = parseDocument(text).getIn(path, true);
@@ -44,26 +43,28 @@ const replaceScalar = (text: string, path: string[], value: string): string => {
     return replaced;
 };
 
-export const chartImageTag = (values: string, component: Component): string =>
-    String(findScalar(values, [component, "image", "tag"]).value);
+export const chartImageTag = (values: string, image: ImageName): string =>
+    String(findScalar(values, [image, "image", "tag"]).value);
 
-export const setChartImageTag = (values: string, component: Component, version: string): string =>
-    replaceScalar(values, [component, "image", "tag"], version);
+export const setChartImageTag = (values: string, image: ImageName, version: string): string =>
+    replaceScalar(values, [image, "image", "tag"], version);
 
-export const setComposeImageTag = (
-    compose: string,
-    component: Component,
-    version: string,
-): string => {
-    const current = String(findScalar(compose, ["services", component, "image"]).value);
+/**
+ * Records which release of the unit the chart deploys.
+ *
+ * release-please owns the chart's own `version` in the same file. The two
+ * keys sit far enough apart that a release pull request and a bump pull
+ * request do not land in each other's merge context.
+ */
+export const setChartAppVersion = (chart: string, version: string): string =>
+    replaceScalar(chart, ["appVersion"], version);
 
-    if (!current.startsWith(imagePrefix(component))) {
-        throw new Error(`Unexpected ${component} image in the compose file: ${current}`);
+export const setComposeImageTag = (compose: string, image: ImageName, version: string): string => {
+    const current = String(findScalar(compose, ["services", image, "image"]).value);
+
+    if (!current.startsWith(imagePrefix(image))) {
+        throw new Error(`Unexpected ${image} image in the compose file: ${current}`);
     }
 
-    return replaceScalar(
-        compose,
-        ["services", component, "image"],
-        imagePrefix(component) + version,
-    );
+    return replaceScalar(compose, ["services", image, "image"], imagePrefix(image) + version);
 };

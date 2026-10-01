@@ -1,0 +1,14 @@
+apiVersion: v2
+name: eventail-furry-schedule-adapter
+description: Serves an Eventail edition's schedule in the Furry Schedule Schema
+type: application
+version: 0.0.0
+home: https://github.com/eventail-scheduling/eventail-deploy
+sources:
+  - https://github.com/eventail-scheduling/eventail-deploy
+  - https://github.com/eventail-scheduling/eventail-furry-schedule-adapter
+
+# The adapter release this chart deploys. Written by the bump pipeline
+# alongside the image tag. Helm resolves nothing from it; `helm list` and
+# Artifact Hub have nothing else to show.
+appVersion: "0.0.0"

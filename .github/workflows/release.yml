@@ -10,8 +10,9 @@ jobs:
     # The App's token does the writing, so this job's own token needs nothing.
     permissions: {}
     outputs:
-      release_created: ${{ steps.release.outputs['charts/eventail--release_created'] }}
-      pr: ${{ steps.release.outputs.pr }}
+      releases_created: ${{ steps.release.outputs.releases_created }}
+      paths_released: ${{ steps.release.outputs.paths_released }}
+      prs: ${{ steps.release.outputs.prs }}
     steps:
       # Pushes and pull requests made with GITHUB_TOKEN start no workflow runs,
       # so checks would never run on the release pull request.
@@ -27,9 +28,12 @@ jobs:
 
   auto-merge-release:
     needs: release-please
-    if: ${{ needs.release-please.outputs.pr }}
+    if: ${{ needs.release-please.outputs.prs != '' && needs.release-please.outputs.prs != '[]' }}
     runs-on: ubuntu-latest
     permissions: {}
+    strategy:
+      matrix:
+        pull_request: ${{ fromJSON(needs.release-please.outputs.prs) }}
     steps:
       - uses: actions/create-github-app-token@bcd2ba49218906704ab6c1aa796996da409d3eb1 # v3.2.0
         id: app-token
@@ -42,17 +46,20 @@ jobs:
       - uses: ./.github/actions/setup
       - run: node scripts/auto-merge-release.ts
         env:
-          PR_NUMBER: ${{ fromJSON(needs.release-please.outputs.pr).number }}
-          PR_TITLE: ${{ fromJSON(needs.release-please.outputs.pr).title }}
+          PR_NUMBER: ${{ matrix.pull_request.number }}
+          PR_TITLE: ${{ matrix.pull_request.title }}
           GH_TOKEN: ${{ steps.app-token.outputs.token }}
 
   publish-chart:
     needs: release-please
-    if: ${{ needs.release-please.outputs.release_created }}
+    if: ${{ needs.release-please.outputs.releases_created == 'true' }}
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
+    strategy:
+      matrix:
+        chart: ${{ fromJSON(needs.release-please.outputs.paths_released) }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - uses: azure/setup-helm@9bc31f4ebc9c6b171d7bfbaa5d006ae7abdb4310 # v5.0.1
@@ -61,5 +68,7 @@ jobs:
       - run: echo "$GITHUB_TOKEN" | helm registry login ghcr.io --username "$GITHUB_ACTOR" --password-stdin
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - run: helm package charts/eventail --destination "$RUNNER_TEMP/chart"
-      - run: helm push "$RUNNER_TEMP"/chart/eventail-*.tgz oci://ghcr.io/eventail-scheduling/charts
+      # One matrix leg packages one chart into an empty RUNNER_TEMP, so the
+      # glob below has exactly one file to find.
+      - run: helm package "${{ matrix.chart }}" --destination "$RUNNER_TEMP/chart"
+      - run: helm push "$RUNNER_TEMP"/chart/*.tgz oci://ghcr.io/eventail-scheduling/charts

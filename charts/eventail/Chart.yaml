@@ -6,9 +6,9 @@ version: 0.0.0
 home: https://github.com/eventail-scheduling/eventail-deploy
 sources:
   - https://github.com/eventail-scheduling/eventail-deploy
-  - https://github.com/eventail-scheduling/eventail-api
-  - https://github.com/eventail-scheduling/eventail-web
+  - https://github.com/eventail-scheduling/eventail
 
 # The eventail release this chart deploys. Written by the bump pipeline
-# alongside the image tags; Helm resolves nothing from it.
+# alongside the image tags. Helm resolves nothing from it; `helm list` and
+# Artifact Hub have nothing else to show.
 appVersion: "0.0.0"

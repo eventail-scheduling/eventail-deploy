@@ -7,6 +7,8 @@ module.exports = {
             [
                 "chart",
                 "compose",
+                "eventail",
+                "furry-schedule-adapter",
                 // Dependabot emits these two when commit-message.include is
                 // set to "scope".
                 "deps",

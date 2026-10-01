@@ -4,7 +4,10 @@ import { bumpBranch, supersede } from "../scripts/bumps.ts";
 
 describe("bumpBranch", () => {
     it("names the branch after the image and version", () => {
-        assert.equal(bumpBranch("web", "0.1.2"), "bump/web-0.1.2");
+        assert.equal(
+            bumpBranch("furry-schedule-adapter", "0.1.2"),
+            "bump/furry-schedule-adapter-0.1.2",
+        );
     });
 });
 
@@ -12,10 +15,10 @@ describe("supersede", () => {
     it("closes older bumps of the same image", () => {
         const result = supersede(
             [
-                { number: 7, headRefName: "bump/api-0.1.2" },
-                { number: 8, headRefName: "bump/api-0.1.1" },
+                { number: 7, headRefName: "bump/eventail-0.1.2" },
+                { number: 8, headRefName: "bump/eventail-0.1.1" },
             ],
-            "api",
+            "eventail",
             "0.1.3",
         );
 
@@ -25,10 +28,10 @@ describe("supersede", () => {
     it("stands down when a newer bump of the same image is open", () => {
         const result = supersede(
             [
-                { number: 7, headRefName: "bump/api-0.1.2" },
-                { number: 9, headRefName: "bump/api-0.1.4" },
+                { number: 7, headRefName: "bump/eventail-0.1.2" },
+                { number: 9, headRefName: "bump/eventail-0.1.4" },
             ],
-            "api",
+            "eventail",
             "0.1.3",
         );
 
@@ -36,24 +39,28 @@ describe("supersede", () => {
     });
 
     it("compares versions numerically", () => {
-        const result = supersede([{ number: 9, headRefName: "bump/api-0.1.10" }], "api", "0.1.9");
+        const result = supersede(
+            [{ number: 9, headRefName: "bump/eventail-0.1.10" }],
+            "eventail",
+            "0.1.9",
+        );
 
         assert.deepEqual(result, { standDown: true, close: [] });
     });
 
     it("does nothing when no other bump is open", () => {
-        assert.deepEqual(supersede([], "api", "0.1.3"), { standDown: false, close: [] });
+        assert.deepEqual(supersede([], "eventail", "0.1.3"), { standDown: false, close: [] });
     });
 
     it("leaves other images, its own branch and unrelated branches alone", () => {
         const result = supersede(
             [
-                { number: 3, headRefName: "bump/web-0.1.2" },
-                { number: 4, headRefName: "bump/api-0.1.3" },
+                { number: 3, headRefName: "bump/furry-schedule-adapter-0.1.2" },
+                { number: 4, headRefName: "bump/eventail-0.1.3" },
                 { number: 5, headRefName: "release-please--branches--main--components--eventail" },
-                { number: 6, headRefName: "bump/api-next" },
+                { number: 6, headRefName: "bump/eventail-next" },
             ],
-            "api",
+            "eventail",
             "0.1.3",
         );
 

@@ -2,9 +2,31 @@ import semver from "semver";
 
 export type ReleaseKind = "patch" | "feature" | "breaking";
 
-export type Component = "api" | "web";
+/** What releases upstream, which is not one-to-one with what gets an image. */
+export type ReleaseUnit = "eventail" | "furry-schedule-adapter";
 
-export const components: readonly Component[] = ["api", "web"];
+export type ImageName = "api" | "web" | "furry-schedule-adapter";
+
+export type UnitShape = {
+    images: readonly [ImageName, ...ImageName[]];
+    chart: string;
+    sourceRepository: string;
+};
+
+export const unitShapes: Record<ReleaseUnit, UnitShape> = {
+    eventail: {
+        images: ["api", "web"],
+        chart: "charts/eventail",
+        sourceRepository: "eventail",
+    },
+    "furry-schedule-adapter": {
+        images: ["furry-schedule-adapter"],
+        chart: "charts/eventail-furry-schedule-adapter",
+        sourceRepository: "eventail-furry-schedule-adapter",
+    },
+};
+
+export const releaseUnits: readonly ReleaseUnit[] = Object.keys(unitShapes) as ReleaseUnit[];
 
 const bumpCommitTypes: Record<ReleaseKind, string> = {
     patch: "fix",
@@ -52,16 +74,52 @@ export const isNewerRelease = (current: string, version: string): boolean => {
     return semver.gt(version, current);
 };
 
-export const bumpTitle = (component: Component, version: string, kind: ReleaseKind): string =>
-    `${bumpCommitTypes[kind]}: update the ${component} image to ${version}`;
+export const bumpTitle = (unit: ReleaseUnit, version: string, kind: ReleaseKind): string =>
+    `${bumpCommitTypes[kind]}: update ${unit} to ${version}`;
+
+export type ProposedRelease = {
+    unit: ReleaseUnit;
+    version: string;
+};
+
+/**
+ * Reads the unit and version out of a release pull request's title.
+ *
+ * The title pattern is pinned in release-please-config.json so this can parse
+ * it. Answers null for any title that does not match, which leaves the merge
+ * to a person rather than guessing.
+ */
+export const parseReleaseTitle = (pullRequestTitle: string): ProposedRelease | null => {
+    const matched = /^chore\((\S+)\): release (\S+)$/.exec(pullRequestTitle);
+
+    if (matched === null) {
+        return null;
+    }
+
+    const [, unit, version] = matched;
+    const known = releaseUnits.find((candidate) => candidate === unit);
+
+    // semver.valid answers "0.1.2" for "v0.1.2", so comparing against the
+    // input is what rejects a prefix rather than carrying it forward.
+    if (
+        known === undefined ||
+        version === undefined ||
+        semver.valid(version) !== version ||
+        semver.prerelease(version) !== null
+    ) {
+        return null;
+    }
+
+    return { unit: known, version };
+};
 
 /** Leaves the merge to a person for a breaking release and for any unexpected title. */
 export const releaseMergesItself = (currentVersion: string, pullRequestTitle: string): boolean => {
-    const proposed = /^chore: release (\S+)$/.exec(pullRequestTitle)?.[1];
+    const proposed = parseReleaseTitle(pullRequestTitle);
 
-    if (proposed === undefined) {
+    if (proposed === null) {
         return false;
     }
 
-    return classifyRelease(currentVersion, proposed) !== "breaking";
+    return classifyRelease(currentVersion, proposed.version) !== "breaking";
 };

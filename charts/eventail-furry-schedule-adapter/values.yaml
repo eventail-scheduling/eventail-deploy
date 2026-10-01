@@ -1,0 +1,73 @@
+furry-schedule-adapter:
+  # The document carries the instant it was built, so two replicas would serve
+  # permanently different validators for one schedule. 0 pauses the adapter
+  # without uninstalling it.
+  replicaCount: 1
+
+  image:
+    repository: ghcr.io/eventail-scheduling/eventail-furry-schedule-adapter
+    tag: "0.0.0"
+    pullPolicy: IfNotPresent
+
+  resources: {}
+
+  extraEnv: []
+
+eventail:
+  # The Eventail API this reads from, and the edition it publishes.
+  baseUrl: ""
+  editionId: ""
+
+  # Left unset to take the adapter's own defaults.
+  pollInterval: ""
+  livePollInterval: ""
+  requestTimeout: ""
+
+  auth:
+    issuer: ""
+    clientId: ""
+    audience: ""
+    scope: ""
+
+    # A provider reached inside the cluster has no TLS to terminate, and the
+    # adapter refuses a plaintext issuer without this. It also drops
+    # openid-client's HTTPS rule for the request carrying the client secret.
+    allowInsecureIssuer: false
+
+    # The client secret is never a chart value. The secret must hold it under
+    # `clientSecret`.
+    existingSecret: ""
+
+document:
+  # Required: Eventail stores one language per edition without naming it.
+  language: ""
+  descriptionSource: abstract
+  maxStaleness: ""
+
+venue:
+  id: ""
+  name: ""
+  address: ""
+
+source:
+  name: eventail
+  vendorId: ""
+
+# The access token is cached on disk so a restart does not mint another;
+# providers meter them. An emptyDir would lose it on every restart, which is
+# the cost the cache exists to avoid. One replica by design, so ReadWriteOnce.
+persistence:
+  enabled: true
+  existingClaim: ""
+  storageClass: ""
+  # 1Gi because EBS, GCE PD and Azure Disk all floor there; a smaller request
+  # leaves the claim Pending.
+  size: 1Gi
+
+service:
+  port: 80
+
+podAnnotations: {}
+nodeSelector: {}
+tolerations: []
+affinity: {}
