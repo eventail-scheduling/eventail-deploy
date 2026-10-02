@@ -1,0 +1,25 @@
+{{- if .Values.httpRoute.enabled }}
+{{- range $component, $url := dict "web" $.Values.webUrl "api" $.Values.apiUrl }}
+---
+apiVersion: gateway.networking.k8s.io/v1
+kind: HTTPRoute
+metadata:
+  name: {{ include "eventail.fullname" $ }}-{{ $component }}
+  labels:
+    {{- include "eventail.labels" $ | nindent 4 }}
+    app.kubernetes.io/component: {{ $component }}
+  {{- with $.Values.httpRoute.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  parentRefs:
+    {{- toYaml $.Values.httpRoute.parentRefs | nindent 4 }}
+  hostnames:
+    - {{ lower (urlParse $url).hostname | quote }}
+  rules:
+    - backendRefs:
+        - name: {{ include "eventail.fullname" $ }}-{{ $component }}
+          port: 80
+{{- end }}
+{{- end }}

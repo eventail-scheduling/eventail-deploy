@@ -1,0 +1,36 @@
+{{- if .Values.ingress.enabled }}
+{{- if empty .Values.hostnames }}
+{{- fail "hostnames is required when ingress.enabled or httpRoute.enabled is set" }}
+{{- end }}
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: {{ include "eventail-furry-schedule-adapter.fullname" . }}
+  labels:
+    {{- include "eventail-furry-schedule-adapter.labels" . | nindent 4 }}
+  {{- with .Values.ingress.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+spec:
+  {{- with .Values.ingress.className }}
+  ingressClassName: {{ . }}
+  {{- end }}
+  {{- with .Values.ingress.tls }}
+  tls:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  rules:
+    {{- range .Values.hostnames }}
+    - host: {{ . | lower | quote }}
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "eventail-furry-schedule-adapter.fullname" $ }}
+                port:
+                  name: http
+    {{- end }}
+{{- end }}

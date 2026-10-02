@@ -67,6 +67,26 @@ persistence:
 service:
   port: 80
 
+# The hostnames the document is served on, used by whichever router you
+# enable below. The adapter needs no public address of its own otherwise.
+hostnames: []
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+  # Standard Ingress tls entries, naming a Secret that already exists.
+  tls: []
+
+# Gateway API, for a cluster that routes with it rather than with Ingress.
+# Both may be enabled at once while you migrate from one to the other.
+httpRoute:
+  enabled: false
+  # The Gateway to attach to, as standard parentRefs entries. It owns the
+  # listeners and their certificates, so TLS belongs there, not here.
+  parentRefs: []
+  annotations: {}
+
 podAnnotations: {}
 nodeSelector: {}
 tolerations: []

@@ -332,6 +332,41 @@
           "type": "object"
         }
       }
+    },
+    "httpRoute": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "enabled": {
+          "type": "boolean"
+        },
+        "parentRefs": {
+          "type": "array"
+        },
+        "annotations": {
+          "type": "object"
+        }
+      },
+      "if": {
+        "properties": {
+          "enabled": {
+            "const": true
+          }
+        },
+        "required": [
+          "enabled"
+        ]
+      },
+      "then": {
+        "properties": {
+          "parentRefs": {
+            "minItems": 1
+          }
+        },
+        "required": [
+          "parentRefs"
+        ]
+      }
     }
   }
 }

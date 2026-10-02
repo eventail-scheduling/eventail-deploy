@@ -58,11 +58,18 @@ jobs:
           version: v4.3.0
       - run: >-
           helm template "${{ matrix.chart }}" "charts/${{ matrix.chart }}"
-          -f "ci/${{ matrix.chart }}-values.yaml" > "$RUNNER_TEMP/rendered.yaml"
+          -f "ci/${{ matrix.chart }}-values.yaml" > "$RUNNER_TEMP/default.yaml"
       - run: >-
-          docker run --rm -i
+          helm template "${{ matrix.chart }}" "charts/${{ matrix.chart }}"
+          -f "ci/${{ matrix.chart }}-values.yaml"
+          -f "ci/${{ matrix.chart }}-routing-values.yaml" > "$RUNNER_TEMP/routed.yaml"
+      - run: >-
+          docker run --rm -v "$RUNNER_TEMP:/manifests"
           ghcr.io/yannh/kubeconform@sha256:faffaf43f95aa6425306e1ab8d6fcad72acb9049158f38e574c085ea1ec0f64e
-          -strict -summary - < "$RUNNER_TEMP/rendered.yaml"
+          -strict -summary
+          -schema-location default
+          -schema-location 'https://raw.githubusercontent.com/datreeio/CRDs-catalog/main/{{.Group}}/{{.ResourceKind}}_{{.ResourceAPIVersion}}.json'
+          /manifests/default.yaml /manifests/routed.yaml
 
   compose:
     runs-on: ubuntu-latest

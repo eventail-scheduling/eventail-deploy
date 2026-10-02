@@ -1,9 +1,13 @@
 The Furry Schedule Adapter is starting up.
 
 It serves the schedule document on the Service
-{{ include "eventail-furry-schedule-adapter.fullname" . }} (port {{ .Values.service.port }}). No Ingress is
-created: route to it yourself if the document should be reachable from outside
-the cluster.
+{{ include "eventail-furry-schedule-adapter.fullname" . }} (port {{ .Values.service.port }}).
+{{- if or .Values.ingress.enabled .Values.httpRoute.enabled }}
+It is reachable at {{ join ", " .Values.hostnames }}.
+{{- else }}
+Neither an Ingress nor an HTTPRoute was created: route to the Service yourself
+if the document should be reachable from outside the cluster.
+{{- end }}
 
 The first poll of {{ .Values.eventail.baseUrl }} happens at startup. Until it
 succeeds the document is unavailable rather than empty, and /health answers 200

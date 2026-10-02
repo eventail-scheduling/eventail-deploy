@@ -1,0 +1,16 @@
+# Rendered on top of eventail-values.yaml to cover both routers, including
+# the overlap an operator sees while migrating from one to the other.
+ingress:
+  enabled: true
+  className: nginx
+  tls:
+    - secretName: eventail-tls
+      hosts:
+        - eventail.test
+        - api.eventail.test
+
+httpRoute:
+  enabled: true
+  parentRefs:
+    - name: public
+      namespace: gateways

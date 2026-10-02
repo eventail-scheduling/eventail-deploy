@@ -82,3 +82,12 @@ ingress:
   # Standard Ingress tls entries; the hosts in the rules come from webUrl and
   # apiUrl.
   tls: []
+
+# Gateway API, for a cluster that routes with it rather than with Ingress.
+# Both may be enabled at once while you migrate from one to the other.
+httpRoute:
+  enabled: false
+  # The Gateway to attach to, as standard parentRefs entries. It owns the
+  # listeners and their certificates, so TLS belongs there, not here.
+  parentRefs: []
+  annotations: {}
