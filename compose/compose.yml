@@ -63,7 +63,7 @@ services:
     # Opt in with `--profile furry-schedule-adapter`; most deployments do not
     # publish to the Furry Schedule Schema.
     profiles: [furry-schedule-adapter]
-    image: ghcr.io/eventail-scheduling/eventail-furry-schedule-adapter:0.0.0
+    image: ghcr.io/eventail-scheduling/eventail-furry-schedule-adapter:0.1.0
     restart: unless-stopped
     env_file: furry-schedule-adapter.env
     environment:
