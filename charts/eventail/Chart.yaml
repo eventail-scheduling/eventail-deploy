@@ -11,4 +11,4 @@ sources:
 # The eventail release this chart deploys. Written by the bump pipeline
 # alongside the image tags. Helm resolves nothing from it; `helm list` and
 # Artifact Hub have nothing else to show.
-appVersion: "0.0.0"
+appVersion: "0.1.0"
