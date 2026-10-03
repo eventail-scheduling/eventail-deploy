@@ -6,7 +6,7 @@ furry-schedule-adapter:
 
   image:
     repository: ghcr.io/eventail-scheduling/eventail-furry-schedule-adapter
-    tag: "0.1.0"
+    tag: "0.2.0"
     pullPolicy: IfNotPresent
 
   resources: {}
