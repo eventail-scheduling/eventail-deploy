@@ -5,8 +5,7 @@
   "required": [
     "furry-schedule-adapter",
     "eventail",
-    "document",
-    "venue"
+    "document"
   ],
   "properties": {
     "global": {
@@ -168,26 +167,8 @@
         },
         "maxStaleness": {
           "type": "string"
-        }
-      }
-    },
-    "venue": {
-      "type": "object",
-      "additionalProperties": false,
-      "required": [
-        "id",
-        "name"
-      ],
-      "properties": {
-        "id": {
-          "type": "string",
-          "minLength": 1
         },
-        "name": {
-          "type": "string",
-          "minLength": 1
-        },
-        "address": {
+        "membershipCustomFieldKey": {
           "type": "string"
         }
       }

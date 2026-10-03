@@ -89,12 +89,8 @@ capabilities:
 - name: DOCUMENT_MAX_STALENESS
   value: {{ . | quote }}
 {{- end }}
-- name: VENUE_ID
-  value: {{ required "venue.id is required" .Values.venue.id | quote }}
-- name: VENUE_NAME
-  value: {{ required "venue.name is required" .Values.venue.name | quote }}
-{{- with .Values.venue.address }}
-- name: VENUE_ADDRESS
+{{- with .Values.document.membershipCustomFieldKey }}
+- name: DOCUMENT_MEMBERSHIP_CUSTOM_FIELD_KEY
   value: {{ . | quote }}
 {{- end }}
 - name: SOURCE_NAME

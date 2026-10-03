@@ -18,6 +18,4 @@ eventail:
     existingSecret: furry-schedule-adapter
 document:
   language: en
-venue:
-  id: main
-  name: Example Convention Center
+  membershipCustomFieldKey: membership

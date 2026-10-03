@@ -44,10 +44,10 @@ document:
   descriptionSource: abstract
   maxStaleness: ""
 
-venue:
-  id: ""
-  name: ""
-  address: ""
+  # The external key of the choice question asked of sessions whose options are
+  # the membership levels. Left out, the document names none and restricts no
+  # event.
+  membershipCustomFieldKey: ""
 
 source:
   name: eventail
